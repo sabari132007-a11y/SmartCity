@@ -1,8 +1,10 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, send_file, request
 import requests
 import random
 import sqlite3
 import os
+import qrcode
+import io
 from datetime import datetime
 
 app = Flask(__name__)
@@ -334,5 +336,18 @@ def calculate_eb_bill():
         "issued_at": now_str
     })
 
+# Dynamic QR Code Route
+@app.route('/qrcode')
+def generate_qr():
+    portal_url = request.host_url.rstrip('/')
+    qr = qrcode.QRCode(version=1, box_size=10, border=2)
+    qr.add_data(portal_url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+    return send_file(buffer, mimetype='image/png')
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

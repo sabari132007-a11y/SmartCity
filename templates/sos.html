@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Emergency SOS & Red Zone Monitor - Chennai Smart City{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-red-600 text-white p-6 rounded-2xl shadow-xl flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-black flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation animate-bounce"></i> EMERGENCY SOS & LIVE RED ZONE MONITOR
+            </h2>
+            <p class="text-xs text-red-100 font-semibold mt-1">Live coordinates pinpointed with active 500m Red Hazard Zone dispatch.</p>
+        </div>
+        <button onclick="triggerEmergencySOS()" class="bg-white text-red-700 font-black text-sm px-6 py-3 rounded-xl shadow-xl hover:bg-red-50 transition animate-pulse">
+            🚨 DISPATCH SOS & ACTIVATE RED ZONE
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 space-y-4">
+            <h3 class="font-extrabold text-gray-900 border-b pb-2 flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-shield-cat text-red-600"></i> Active Responders (Thoraipakkam Zone)
+            </h3>
+
+            <div class="bg-blue-50 border border-blue-200 p-3.5 rounded-xl text-xs space-y-1 text-blue-900">
+                <b class="font-black text-blue-800 text-sm block flex items-center gap-1">
+                    <i class="fa-solid fa-building-shield"></i> J9 Thoraipakkam Police Station
+                </b>
+                <p>Location: OMR Radial Road Junction, Thoraipakkam</p>
+                <p class="font-bold text-blue-700">Distance: 0.8 km (ETA: 3 mins)</p>
+            </div>
+
+            <div class="bg-pink-50 border border-pink-200 p-3.5 rounded-xl text-xs space-y-1 text-pink-900">
+                <b class="font-black text-pink-800 text-sm block flex items-center gap-1">
+                    <i class="fa-solid fa-person-shelter"></i> Pink Patrol Unit (Women & Child Protection)
+                </b>
+                <p>Vehicle Unit #4 - Active Surveillance on Subramanya Nagar St Corridor</p>
+                <p class="font-bold text-pink-700">Distance: 0.3 km (ETA: 2 mins)</p>
+            </div>
+
+            <div id="sos-status-box" class="hidden bg-emerald-50 border border-emerald-300 p-4 rounded-xl text-xs space-y-2 text-emerald-900">
+                <b class="text-emerald-800 font-extrabold block text-sm"><i class="fa-solid fa-circle-check"></i> DISPATCH ACKNOWLEDGED!</b>
+                <p id="sos-ref-id" class="font-mono font-bold"></p>
+                <p id="sos-police-info"></p>
+                <p id="sos-pink-info"></p>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 bg-white p-3 rounded-2xl shadow-xl border border-gray-200 space-y-2">
+            <div class="flex justify-between items-center px-2">
+                <span class="text-xs font-bold text-red-600 flex items-center gap-1">
+                    <i class="fa-solid fa-circle-dot animate-ping text-red-500"></i> Active Red Zone Radius: 500 Meters
+                </span>
+                <span id="coord-display" class="text-xs font-mono font-bold text-gray-500">Locating GPS...</span>
+            </div>
+            <div id="sos-map" class="w-full h-[480px] rounded-xl border border-gray-300 z-10"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let map, marker, redZone;
+
+    function initSOSMap(lat, lng) {
+        if (!map) {
+            map = L.map('sos-map').setView([lat, lng], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        } else {
+            // Smoothly pan map to current real-time coordinates
+            map.setView([lat, lng], map.getZoom());
+        }
+
+        // Remove previous markers/circles to update positions live
+        if (marker) map.removeLayer(marker);
+        if (redZone) map.removeLayer(redZone);
+
+        // 500-Meter Live Red Hazard Zone tracking real-time position
+        redZone = L.circle([lat, lng], {
+            color: '#dc2626',
+            fillColor: '#ef4444',
+            fillOpacity: 0.4,
+            radius: 500
+        }).addTo(map).bindPopup("<b>🚨 ACTIVE RED HAZARD ZONE</b><br>500m Emergency Dispatch Area");
+
+        marker = L.marker([lat, lng]).addTo(map)
+            .bindPopup("<b>📍 LIVE REAL-TIME POSITION</b><br>Lat: " + lat.toFixed(4) + ", Lng: " + lng.toFixed(4))
+            .openPopup();
+            
+        // Optional: Update coord display if available in your HTML
+        const coordDisplay = document.getElementById('coord-display');
+        if(coordDisplay) {
+            coordDisplay.innerText = `Live GPS: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        }
+    }
+
+    // Use watchPosition for continuous real-time coordinate tracking as you move
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(
+            position => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                initSOSMap(lat, lng);
+            },
+            error => {
+                console.warn("Geolocation watch error, falling back to Thoraipakkam default:", error);
+                initSOSMap(12.9623, 80.2432); // Fallback default
+            },
+            {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 10000
+            }
+        );
+    } else {
+        initSOSMap(12.9623, 80.2432);
+    }
+</script>
+{% endblock %}

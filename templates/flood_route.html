@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Monsoon Flood Route - Chennai Smart City{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-black text-gray-900 flex items-center gap-2">
+                <i class="fa-solid fa-water text-blue-600"></i> Monsoon Flood & Safe Routing Navigation
+            </h2>
+            <p class="text-xs text-gray-600 font-semibold mt-1">Real-time waterlogging alerts and safe corridor navigation avoiding Velachery, Mudichur, and Pallikaranai water stagnation points.</p>
+        </div>
+        <a href="https://chennaicorporation.gov.in/" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow transition">
+            GCC Disaster Portal <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Waterlogging Hazard Panel -->
+        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 space-y-4">
+            <h3 class="font-extrabold text-gray-900 border-b pb-2 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-red-600"></i> Active Waterlogging Zones
+            </h3>
+            <div class="space-y-2 text-xs">
+                <div class="p-3 bg-red-50 border border-red-200 rounded-xl font-bold text-red-900">
+                    🔴 Velachery 100 Feet Road <span class="block text-[10px] text-red-600 font-normal">Water Depth: 1.5 ft (High Risk - Avoid)</span>
+                </div>
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl font-bold text-amber-900">
+                    🟠 Mudichur Main Road <span class="block text-[10px] text-amber-600 font-normal">Water Depth: 0.8 ft (Moderate Stagnation)</span>
+                </div>
+                <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl font-bold text-emerald-900">
+                    🟢 OMR Thoraipakkam Corridor <span class="block text-[10px] text-emerald-600 font-normal">Clear & Safe for Transit</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- GIS Leaflet Map Container -->
+        <div class="lg:col-span-2 bg-white p-3 rounded-2xl shadow-xl border border-gray-200 space-y-2">
+            <div class="flex justify-between items-center px-2 text-xs font-bold text-gray-700">
+                <span>Monsoon Hazard & Safe Route GIS Map</span>
+                <span class="text-emerald-600 animate-pulse">● Live Safety Feed Active</span>
+            </div>
+            <div id="flood-map" class="w-full h-[450px] rounded-xl border border-gray-300"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize Map centered around Thoraipakkam / Velachery corridor
+        const map = L.map('flood-map').setView([12.9623, 80.2432], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Waterlogging Danger Marker
+        L.circle([12.9780, 80.2210], {
+            color: '#dc2626',
+            fillColor: '#ef4444',
+            fillOpacity: 0.5,
+            radius: 600
+        }).addTo(map).bindPopup("<b>🚨 Velachery Waterlogging Zone</b><br>Severe stagnation. Use OMR alternate bypass.");
+
+        // Safe Route Marker
+        L.marker([12.9623, 80.2432]).addTo(map)
+            .bindPopup("<b>✅ Thoraipakkam Safe Corridor</b><br>Normal traffic flow and clear drainage.");
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Home - Chennai Smart City{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Top Light Banner -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-gradient-to-r from-blue-600 to-indigo-700 p-6 rounded-2xl text-white shadow-md flex justify-between items-center">
+            <div>
+                <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full uppercase tracking-wide font-bold">Chennai Smart City</span>
+                <h2 class="text-2xl font-extrabold mt-2">Real-Time Urban Services & Citizen Portal</h2>
+                <p class="text-xs text-blue-100 mt-1">Live MTC bus tracking, EV reservation, TANGEDCO EB alerts, and monsoon navigation.</p>
+            </div>
+            <div class="bg-blue-600/40 border border-blue-400/30 p-6 rounded-2xl flex flex-col items-center justify-center text-white space-y-2">
+                <i class="fa-solid fa-cloud-sun text-3xl text-amber-300"></i>
+                <!-- Ensure id="weather-temp" is present here -->
+                <h3 id="weather-temp" class="text-3xl font-black">29°C</h3>
+                <span class="text-xs text-blue-100 font-semibold">Chennai Weather (Thoraipakkam)</span>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+            <h3 class="font-bold text-gray-800 flex items-center gap-2 text-sm border-b pb-2">
+                <i class="fa-solid fa-bullhorn text-amber-500"></i> Live Notifications
+            </h3>
+            <ul class="mt-3 text-xs space-y-2 text-gray-600">
+                <li class="bg-blue-50 p-2.5 rounded-lg border border-blue-100">
+                    <b class="text-blue-700">[TANGEDCO]</b> Pushbullet warning enabled for EB usage > 450 units.
+                </li>
+                <li class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-100">
+                    <b class="text-emerald-700">[EV Spot]</b> Reserve 2W (₹15/hr) & 4W (₹60/hr) charging with OTP.
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Smart City Modules Cards (White Theme) -->
+    <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+        <i class="fa-solid fa-cubes text-blue-600"></i> Smart Modules
+    </h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <a href="/bus" class="bg-white p-5 rounded-2xl border border-gray-200 hover:border-blue-500 hover:shadow-md transition group">
+            <div class="text-blue-600 text-3xl mb-3"><i class="fa-solid fa-bus"></i></div>
+            <h4 class="font-bold text-base text-gray-800">Live MTC Bus Tracker</h4>
+            <p class="text-xs text-gray-500 mt-1">Real-time dynamic moving bus positions on OpenStreetMap.</p>
+        </a>
+
+        <a href="/electricity" class="bg-white p-5 rounded-2xl border border-gray-200 hover:border-amber-500 hover:shadow-md transition group">
+            <div class="text-amber-500 text-3xl mb-3"><i class="fa-solid fa-bolt"></i></div>
+            <h4 class="font-bold text-base text-gray-800">TANGEDCO EB Bill & Pushbullet</h4>
+            <p class="text-xs text-gray-500 mt-1">Login/Register, tariff calculator & SMS alert if usage > 450 units.</p>
+        </a>
+
+        <a href="/ev_charging" class="bg-white p-5 rounded-2xl border border-gray-200 hover:border-teal-500 hover:shadow-md transition group">
+            <div class="text-teal-600 text-3xl mb-3"><i class="fa-solid fa-charging-station"></i></div>
+            <h4 class="font-bold text-base text-gray-800">EV Spot Reservation</h4>
+            <p class="text-xs text-gray-500 mt-1">Mobile OTP login, hourly calculator for 2W (₹15) & 4W (₹60).</p>
+        </a>
+
+        <a href="/metro" class="bg-white p-5 rounded-2xl border border-gray-200 hover:border-indigo-500 hover:shadow-md transition group">
+            <div class="text-indigo-600 text-3xl mb-3"><i class="fa-solid fa-train-subway"></i></div>
+            <h4 class="font-bold text-base text-gray-800">CMRL Metro Planner</h4>
+            <p class="text-xs text-gray-500 mt-1">Fares, routes & interchange station details.</p>
+        </a>
+
+        <a href="/flood_route" class="bg-white p-5 rounded-2xl border border-gray-200 hover:border-cyan-500 hover:shadow-md transition group">
+            <div class="text-cyan-600 text-3xl mb-3"><i class="fa-solid fa-water-water"></i></div>
+            <h4 class="font-bold text-base text-gray-800">Monsoon Flood Route</h4>
+            <p class="text-xs text-gray-500 mt-1">Safe routes avoiding Velachery & Mudichur waterlogging.</p>
+        </a>
+
+        <a href="/parking" class="bg-white p-5 rounded-2xl border border-gray-200 hover:border-emerald-500 hover:shadow-md transition group">
+            <div class="text-emerald-600 text-3xl mb-3"><i class="fa-solid fa-square-parking"></i></div>
+            <h4 class="font-bold text-base text-gray-800">GCC Smart Parking</h4>
+            <p class="text-xs text-gray-500 mt-1">Available parking slots in Pondy Bazaar, Marina & Central.</p>
+        </a>
+
+        <a href="/traffic_simulator" class="bg-white p-5 rounded-2xl border border-gray-200 hover:border-rose-500 hover:shadow-md transition group">
+            <div class="text-rose-600 text-3xl mb-3"><i class="fa-solid fa-car"></i></div>
+            <h4 class="font-bold text-base text-gray-800">Traffic Speed Monitor</h4>
+            <p class="text-xs text-gray-500 mt-1">Live Kathipara, OMR, and Koyambedu junction speeds.</p>
+        </a>
+
+        <a href="/tax" class="bg-white p-5 rounded-2xl border border-gray-200 hover:border-purple-500 hover:shadow-md transition group">
+            <div class="text-purple-600 text-3xl mb-3"><i class="fa-solid fa-receipt"></i></div>
+            <h4 class="font-bold text-base text-gray-800">GCC Property Tax</h4>
+            <p class="text-xs text-gray-500 mt-1">Estimate half-yearly tax and access GCC official portal.</p>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const lat = 12.9623;
+        const lon = 80.2432;
+        
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+            .then(response => response.json())
+            .then(data => {
+                if(data.current_weather) {
+                    const temp = Math.round(data.current_weather.temperature);
+                    document.getElementById('weather-temp').innerText = `${temp}°C`;
+                }
+            })
+            .catch(err => {
+                console.error("Weather fetch error:", err);
+                document.getElementById('weather-temp').innerText = "29°C";
+            });
+    });
+</script>
+
+{% endblock %}

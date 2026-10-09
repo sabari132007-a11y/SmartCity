@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}TANGEDCO Electricity Bill & Alert - Chennai Smart City{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white p-5 rounded-2xl shadow-xl border border-gray-100 flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-black text-gray-900 flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-amber-500"></i> TANGEDCO EB Bill Calculator & Alerts
+            </h2>
+            <p class="text-xs text-gray-600 font-semibold">Calculate bi-monthly electricity charges and get high usage alerts on your phone (>450 Units).</p>
+        </div>
+        <a href="{{ official_link }}" target="_blank" class="bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow transition">
+            Official TANGEDCO Portal <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 space-y-4">
+            <h3 class="font-extrabold text-gray-900 border-b pb-2 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-calculator text-amber-500"></i> EB Usage Calculator
+            </h3>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-800 mb-1">EB Consumer Number</label>
+                <input type="text" id="eb-consumer" placeholder="e.g. 09-231-004-123" value="09-231-004-5821" class="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-gray-900">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-800 mb-1">Registered Mobile Number</label>
+                <input type="tel" id="eb-mobile" placeholder="10-digit mobile" value="9876543210" class="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-gray-900">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-800 mb-1">Consumed Units (kWh)</label>
+                <input type="number" id="eb-units" placeholder="e.g. 480" value="480" class="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-gray-900">
+            </div>
+
+            <button onclick="calculateEB()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-3 rounded-xl shadow-lg text-sm transition">
+                Calculate Tariff & Send Alert
+            </button>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 space-y-4 flex flex-col justify-between">
+            <div>
+                <h3 class="font-extrabold text-gray-900 border-b pb-2 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i> Calculation Statement
+                </h3>
+
+                <div id="eb-result" class="hidden mt-4 space-y-3">
+                    <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-2 text-xs text-amber-900">
+                        <div class="flex justify-between">
+                            <span class="font-semibold text-gray-600">Consumer No:</span>
+                            <span id="res-consumer" class="font-bold"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-semibold text-gray-600">Total Units:</span>
+                            <span id="res-units" class="font-extrabold text-amber-800"></span>
+                        </div>
+                        <div class="flex justify-between text-sm border-t border-amber-200 pt-2">
+                            <span class="font-bold text-gray-800">Amount Payable:</span>
+                            <span id="res-amount" class="font-black text-emerald-600 text-lg"></span>
+                        </div>
+                    </div>
+
+                    <div id="alert-status-badge" class="p-3 rounded-xl text-xs font-bold flex items-center gap-2"></div>
+                </div>
+
+                <div id="eb-placeholder" class="text-center py-12 text-gray-400 space-y-2">
+                    <i class="fa-solid fa-bolt text-4xl"></i>
+                    <p class="text-xs font-semibold">Enter Consumer No & Units on the left to calculate your EB bill.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function calculateEB() {
+        const consumerNo = document.getElementById('eb-consumer').value;
+        const mobile = document.getElementById('eb-mobile').value;
+        const units = document.getElementById('eb-units').value;
+
+        if(!consumerNo || !mobile || !units) {
+            alert("Please fill in Consumer Number, Mobile, and Consumed Units.");
+            return;
+        }
+
+        fetch('/api/eb_bill', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ consumer_no: consumerNo, mobile: mobile, units: units })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                document.getElementById('res-consumer').innerText = data.consumer_no;
+                document.getElementById('res-units').innerText = `${data.units} Units`;
+                document.getElementById('res-amount').innerText = `₹${data.amount_payable}`;
+
+                const badge = document.getElementById('alert-status-badge');
+                if(data.warning_sent) {
+                    badge.className = "p-3 rounded-xl text-xs font-bold bg-red-100 text-red-800 border border-red-300";
+                    badge.innerHTML = `<i class="fa-solid fa-bell animate-bounce"></i> Pushbullet Warning Notification sent to phone (Units > 450)!`;
+                } else if(data.units > 450) {
+                    badge.className = "p-3 rounded-xl text-xs font-bold bg-yellow-100 text-yellow-800 border border-yellow-300";
+                    badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> High usage (>450 Units), but Pushbullet Token needs configuration in app.py.`;
+                } else {
+                    badge.className = "p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300";
+                    badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Usage within normal limits (No SMS alert required).`;
+                }
+
+                document.getElementById('eb-placeholder').classList.add('hidden');
+                document.getElementById('eb-result').classList.remove('hidden');
+            }
+        });
+    }
+</script>
+{% endblock %}

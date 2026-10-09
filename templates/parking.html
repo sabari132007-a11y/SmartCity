@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Smart Parking & Bill Generator - Chennai Smart City{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white p-5 rounded-2xl shadow-xl border border-gray-100 flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-black text-gray-900 flex items-center gap-2">
+                <i class="fa-solid fa-square-parking text-emerald-600"></i> Smart Parking Reservation & Digital Bill
+            </h2>
+            <p class="text-xs text-gray-600 font-semibold">Reserve parking slots using Vehicle Number and Mobile Number. Get instant digital bill.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Booking Form -->
+        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 space-y-4">
+            <h3 class="font-extrabold text-gray-900 border-b pb-2 flex items-center gap-2 text-base">
+                <i class="fa-solid fa-ticket text-emerald-600"></i> Reserve Parking Slot
+            </h3>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-800 mb-1">Select Parking Location</label>
+                <select id="parking-loc" class="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-gray-900">
+                    <option value="Pondy Bazaar Pedestrian Plaza (T. Nagar)">Pondy Bazaar Pedestrian Plaza (T. Nagar) - ₹20/hr</option>
+                    <option value="Marina Beach (Light House)">Marina Beach (Light House) - ₹20/hr</option>
+                    <option value="Thoraipakkam OMR Hub">Thoraipakkam OMR Hub - ₹30/hr</option>
+                    <option value="Anna Nagar 2nd Avenue">Anna Nagar 2nd Avenue - ₹20/hr</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-800 mb-1">Vehicle Registration Number</label>
+                <input type="text" id="park-veh-no" placeholder="e.g. TN 07 AB 1234" value="TN 07 AB 1234" class="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-mono font-bold uppercase text-gray-900">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-800 mb-1">Mobile Phone Number</label>
+                <input type="tel" id="park-mobile" placeholder="10-digit mobile" value="9876543210" class="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-gray-900">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-800 mb-1">Duration (Hours)</label>
+                <input type="number" id="park-hours" value="2" min="1" max="24" class="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-gray-900">
+            </div>
+
+            <button onclick="bookParking()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl shadow-lg text-sm transition">
+                Reserve & Generate Digital Bill
+            </button>
+        </div>
+
+        <!-- Generated Bill / Receipt Display -->
+        <div class="lg:col-span-2">
+            <div id="bill-card" class="hidden bg-white p-6 rounded-2xl shadow-xl border-2 border-emerald-500 space-y-4">
+                <div class="flex justify-between items-center border-b border-dashed pb-3">
+                    <div>
+                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded">OFFICIAL TAX INVOICE</span>
+                        <h3 class="text-xl font-black text-gray-900 mt-1">Chennai Smart Parking Receipt</h3>
+                        <p class="text-xs text-gray-500" id="receipt-date"></p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-gray-500 block">Ticket Ref:</span>
+                        <span id="bill-ticket-id" class="font-mono font-black text-emerald-600 text-lg"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-xs font-semibold text-gray-800 bg-emerald-50/50 p-4 rounded-xl border border-emerald-100">
+                    <div>
+                        <span class="text-gray-500 block">Location:</span>
+                        <span id="bill-loc" class="font-bold text-gray-900"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 block">Vehicle Registration:</span>
+                        <span id="bill-veh" class="font-mono font-black text-blue-700 text-sm"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 block">Customer Mobile:</span>
+                        <span id="bill-mobile" class="font-bold"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 block">Duration Booked:</span>
+                        <span id="bill-hours" class="font-bold"></span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center bg-gray-900 text-white p-4 rounded-xl">
+                    <span class="font-extrabold text-sm">Total Paid (Inclusive of GST):</span>
+                    <span id="bill-total" class="text-2xl font-black text-emerald-400"></span>
+                </div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-xs text-emerald-700 font-bold"><i class="fa-solid fa-circle-check"></i> Saved to SQLite Database (`smartcity.db`)</span>
+                    <button onclick="window.print()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-bold px-4 py-2 rounded-lg">
+                        <i class="fa-solid fa-print"></i> Print Bill
+                    </button>
+                </div>
+            </div>
+
+            <!-- Placeholder image if no bill generated -->
+            <div id="bill-placeholder" class="bg-white p-12 rounded-2xl shadow-xl border border-gray-200 text-center space-y-3">
+                <i class="fa-solid fa-receipt text-5xl text-gray-300"></i>
+                <h4 class="font-bold text-gray-700 text-base">No Ticket Generated Yet</h4>
+                <p class="text-xs text-gray-500 max-w-sm mx-auto">Fill in your vehicle number and mobile number on the left panel to reserve slot and view digital bill.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function bookParking() {
+        const location = document.getElementById('parking-loc').value;
+        const vehicleNumber = document.getElementById('park-veh-no').value;
+        const mobile = document.getElementById('park-mobile').value;
+        const hours = document.getElementById('park-hours').value;
+
+        if(!vehicleNumber || !mobile) {
+            alert('Please enter both Vehicle Number and Mobile Number!');
+            return;
+        }
+
+        fetch('/api/parking_reserve', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                location: location,
+                vehicle_number: vehicleNumber,
+                mobile: mobile,
+                hours: hours
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                document.getElementById('bill-ticket-id').innerText = data.ticket_id;
+                document.getElementById('receipt-date').innerText = `Issued: ${data.issued_at}`;
+                document.getElementById('bill-loc').innerText = data.location;
+                document.getElementById('bill-veh').innerText = data.vehicle_number;
+                document.getElementById('bill-mobile').innerText = data.mobile;
+                document.getElementById('bill-hours').innerText = `${data.hours} Hour(s) (@ ₹${data.rate_per_hr}/hr)`;
+                document.getElementById('bill-total').innerText = `₹${data.total_cost}.00`;
+
+                document.getElementById('bill-placeholder').classList.add('hidden');
+                document.getElementById('bill-card').classList.remove('hidden');
+            }
+        });
+    }
+</script>
+{% endblock %}

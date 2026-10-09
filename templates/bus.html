@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Live MTC Bus Tracker - Chennai Smart City{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-black text-gray-900 flex items-center gap-2">
+                <i class="fa-solid fa-bus text-blue-600"></i> Live MTC Bus Tracking (Chennai)
+            </h2>
+            <p class="text-xs text-gray-600 font-semibold mt-1">Real-time GPS tracking for MTC buses operating across Thoraipakkam, OMR, and Central corridors.</p>
+        </div>
+        <a href="https://mtcbus.tn.gov.in/" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow transition">
+            Official MTC Portal <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Bus Route Selection Panel -->
+        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 space-y-4">
+            <h3 class="font-extrabold text-gray-900 border-b pb-2 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-route text-blue-600"></i> Active Corridors
+            </h3>
+            <div class="space-y-2 text-xs">
+                <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl font-bold text-blue-900">
+                    🚌 Route 19B (Thoraipakkam ⇄ T. Nagar) <span class="block text-[10px] text-emerald-600 font-normal">Live Speed: 32 km/h (Near OMR IT Corridor)</span>
+                </div>
+                <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold text-gray-800">
+                    🚌 Route 517 (Adyar ⇄ Tambaram) <span class="block text-[10px] text-gray-500 font-normal">Live Speed: 28 km/h (Near Perungudi)</span>
+                </div>
+                <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold text-gray-800">
+                    🚌 Route 21G (Broadway ⇄ Tambaram) <span class="block text-[10px] text-gray-500 font-normal">Live Speed: 24 km/h (Near Guindy)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- GIS Leaflet Map Container -->
+        <div class="lg:col-span-2 bg-white p-3 rounded-2xl shadow-xl border border-gray-200 space-y-2">
+            <div class="flex justify-between items-center px-2 text-xs font-bold text-gray-700">
+                <span>Live Fleet GIS Map</span>
+                <span class="text-blue-600 animate-pulse">● Live GPS Feed Active</span>
+            </div>
+            <div id="bus-map" class="w-full h-[450px] rounded-xl border border-gray-300"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize Map centered around Thoraipakkam / OMR
+        const map = L.map('bus-map').setView([12.9623, 80.2432], 14);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Sample Live Bus Markers
+        const busIcon = L.divIcon({
+            html: '<div style="background:#2563eb; color:white; padding:6px; border-radius:50%; text-align:center; font-size:12px; box-shadow:0 2px 6px rgba(0,0,0,0.3);"><i class="fa-solid fa-bus"></i></div>',
+            className: 'custom-bus-marker',
+            iconSize: [30, 30]
+        });
+
+        L.marker([12.9650, 80.2400], {icon: busIcon}).addTo(map)
+            .bindPopup("<b>MTC Bus 19B</b><br>Direction: T. Nagar<br>Next Stop: Thoraipakkam Junction");
+
+        L.marker([12.9580, 80.2480], {icon: busIcon}).addTo(map)
+            .bindPopup("<b>MTC Bus 517</b><br>Direction: Tambaram<br>Next Stop: Perungudi Toll");
+    });
+</script>
+{% endblock %}

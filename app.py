@@ -81,7 +81,7 @@ init_db()
 
 OFFICIAL_LINKS = {
     "gcc_property_tax": "https://chennaicorporation.gov.in/gcc/online-payment/property-tax/",
-    "tangedco_eb": "https://www.tnebnet.org/",
+    "tangedco_eb": "https://www.tnebltd.gov.in/",
     "cmrl_metro": "https://chennaimetrorail.org/",
     "mtc_bus": "https://mtcbus.tn.gov.in/",
     "urban_company": "https://www.urbancompany.com/"
